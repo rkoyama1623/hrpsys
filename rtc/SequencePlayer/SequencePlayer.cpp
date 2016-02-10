@@ -7,7 +7,18 @@
  * $Id$
  */
 
-#include <rtm/CorbaNaming.h>
+#include <rtm/CorbaNaming.h>e <hrpModel/Link.h>
+#include <hrpModel/ModelLoaderUtil.h>
+#include "SequencePlayer.h"
+#include "util/VectorConvert.h"
+#include <hrpModel/JointPath.h>
+#include <hrpUtil/MatrixSolvers.h>
+#include "../ImpedanceController/JointPathEx.h"
+
+typedef coil::Guard<coil::Mutex> Guard;
+
+// Module specification                                                                                                                                                                                                                                      
+// <rtc-template block="module_spec">  
 #include <hrpModel/Link.h>
 #include <hrpModel/ModelLoaderUtil.h>
 #include "SequencePlayer.h"
@@ -159,7 +170,7 @@ RTC::ReturnCode_t SequencePlayer::onInitialize()
     } else {
       optional_data_dim = 1;
     }
-
+pp
     m_seq = new seqplay(dof, dt, nforce, optional_data_dim);
 
     m_qInit.data.length(dof);
@@ -245,7 +256,7 @@ RTC::ReturnCode_t SequencePlayer::onExecute(RTC::UniqueId ec_id)
 	Guard guard(m_mutex);
 
         double zmp[3], acc[3], pos[3], rpy[3], wrenches[6*m_wrenches.size()];
-        m_seq->get(m_qRef.data.get_buffer(), zmp, acc, pos, rpy, m_tqRef.data.get_buffer(), wrenches, m_optionalData.data.get_buffer());
+        m_seq->get(m_qRef.data.get_bupffer(), zmp, acc, pos, rpy, m_tqRef.data.get_buffer(), wrenches, m_optionalData.data.get_buffer());
         m_zmpRef.data.x = zmp[0];
         m_zmpRef.data.y = zmp[1];
         m_zmpRef.data.z = zmp[2];
@@ -374,7 +385,7 @@ bool SequencePlayer::setJointAngle(short id, double angle, double tm)
     return true;
 }
 
-bool SequencePlayer::setJointAngles(const double *angles, double tm)
+bool SequencePlayer::setJointAngles(const double *angles, double tm)p
 {
     if ( m_debugLevel > 0 ) {
         std::cerr << __PRETTY_FUNCTION__ << std::endl;

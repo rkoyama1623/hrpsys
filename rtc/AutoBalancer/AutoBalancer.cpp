@@ -265,8 +265,8 @@ RTC::ReturnCode_t AutoBalancer::onInitialize()
     // load virtual force sensors
     readVirtualForceSensorParamFromProperties(m_vfs, m_robot, prop["virtual_force_sensor"], std::string(m_profile.instance_name));
     // ref force port
-    int npforce = m_robot->numSensors(hrp::Sensor::FORCE);
-    int nvforce = m_vfs.size();
+    int npforce = m_robot->numSensors(hrp::Sensor::FORCE);//number of force sensors
+    int nvforce = m_vfs.size();//number of virtual force sensors?
     int nforce  = npforce + nvforce;
     m_ref_force.resize(nforce);
     m_ref_forceIn.resize(nforce);
@@ -274,10 +274,10 @@ RTC::ReturnCode_t AutoBalancer::onInitialize()
     m_ref_forceOut.resize(nforce);
     m_limbCOPOffset.resize(nforce);
     m_limbCOPOffsetOut.resize(nforce);
-    for (unsigned int i=0; i<npforce; i++){
+    for (unsigned int i=0; i<npforce; i++){//make list of sensor_names
         sensor_names.push_back(m_robot->sensor(hrp::Sensor::FORCE, i)->name);
     }
-    for (unsigned int i=0; i<nvforce; i++){
+    for (unsigned int i=0; i<nvforce; i++){//??
         for ( std::map<std::string, hrp::VirtualForceSensorParam>::iterator it = m_vfs.begin(); it != m_vfs.end(); it++ ) {
             if (it->second.id == i) sensor_names.push_back(it->first);
         }
@@ -312,7 +312,7 @@ RTC::ReturnCode_t AutoBalancer::onInitialize()
     sbp_offset = hrp::Vector3(0,0,0);
     sbp_cog_offset = hrp::Vector3(0,0,0);
     //use_force = MODE_NO_FORCE;
-    use_force = MODE_REF_FORCE;
+    use_force = MODE_REF_FORCE;//ref firceありのモード
 
     if (ikp.find("rleg") != ikp.end() && ikp.find("lleg") != ikp.end()) {
       is_legged_robot = true;
@@ -1819,12 +1819,12 @@ bool AutoBalancer::getRemainingFootstepSequence(OpenHRP::AutoBalancerService::Fo
 void AutoBalancer::static_balance_point_proc_one(hrp::Vector3& tmp_input_sbp, const double ref_com_height)
 {
   hrp::Vector3 target_sbp = hrp::Vector3(0, 0, 0);
-  hrp::Vector3 tmpcog = m_robot->calcCM();
+  hrp::Vector3 tmpcog = m_robot->calcCM();//ref_forceなしの重心
   switch ( use_force ) {
   case MODE_REF_FORCE:
-    calc_static_balance_point_from_forces(target_sbp, tmpcog, ref_com_height, ref_forces);
-    tmp_input_sbp = target_sbp - sbp_offset;
-    sbp_cog_offset = tmp_input_sbp - tmpcog;
+    calc_static_balance_point_from_forces(target_sbp, tmpcog, ref_com_height, ref_forces);//target_sbpが出力
+    tmp_input_sbp = target_sbp - sbp_offset;//zmp offsetの補正？sbp_offsetが不明
+    sbp_cog_offset = tmp_input_sbp - tmpcog;//sbp_cog_offsetは出力sbpと入力sbpの差
     break;
   case MODE_NO_FORCE:
     tmp_input_sbp = tmpcog + sbp_cog_offset;
